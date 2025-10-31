@@ -6,6 +6,10 @@ import turtle
 turtle.fd(0)
 turtle.speed(0)
 turtle.bgcolor("black")
+#Change the bg image
+
+#Change the Window Title
+turtle.title("SpaceWar")
 turtle.ht()
 turtle.setundobuffer(1) #saves memory
 turtle.tracer(2) #Speeds up drawing
@@ -45,10 +49,10 @@ class Sprite(turtle.Turtle):
     else:
       return False
 
-
 class Player(Sprite):
   def __init__(self, spriteshape, color, startx, starty):
     Sprite.__init__(self, spriteshape, color, startx, starty)
+    self.shapesize(stretch_wid=0.6,stretch_len=1.1,outline=None)
     self.speed=4
     self.lives=3
 
@@ -70,10 +74,24 @@ class Enemy(Sprite):
     self.speed = 3
     self.setheading(random.randint(0,360))
 
+class Particle(Sprite):
+  def __init__(self, spriteshape, color, startx, starty):
+    Sprite.__init__(self, spriteshape, color, startx, starty)
+    self.shapesize(stretch_wid=0.1,stretch_len=0.1, outline=None)
+    self.goto(-1000,1000)
+    self.frame=0
+
+  def explode(self,startx,starty):
+    self.goto(startx,starty)
+    self.setheading(random.randint(0,360))
+
+  def move(self):
+    self.fd(10)
+
 class Missile(Sprite):
   def __init__(self, spriteshape, color, startx, starty):
     Sprite.__init__(self, spriteshape, color, startx, starty)
-    self.shapesize(stretch_wid=0.3,stretch_len=0.4, outline=None)
+    self.shapesize(stretch_wid=0.2,stretch_len=0.4, outline=None)
     self.speed=20
     self.status="ready"
     self.goto(-1000,1000)
@@ -119,6 +137,18 @@ class Ally(Sprite):
       self.sety(-290)
       self.lt(60)
 
+class Lives():
+  def __init__(self):
+      self.lives = 3
+      self.pen = turtle.Turtle()
+
+  def show_lives(self):
+      self.pen.undo()
+      msg2="Lives: %s" %(self.lives)
+      self.pen.penup()
+      self.pen.goto(-100,300)
+      self.pen.write(msg2,font=("Arial",16,"normal"))
+
 class Game():
   def __init__(self):
     self.level = 1 
@@ -141,6 +171,7 @@ class Game():
     self.pen.penup()
     self.pen.ht()
     self.pen.pendown()
+    
 
   def show_status(self):
       self.pen.undo()
@@ -148,6 +179,13 @@ class Game():
       self.pen.penup()
       self.pen.goto(-300,300)
       self.pen.write(msg,font=("Arial",16,"normal"))
+  
+  def show_lives(self):
+      #self.pen.undo()
+      msg2='Lives: %s' %(self.lives)
+      self.pen.penup()
+      self.pen.goto(-200,300)
+      self.pen.write(msg2,font=("Arial",16,"normal"))
 
 #Create Game Objects
 game=Game()
@@ -157,6 +195,9 @@ game.draw_border()
 
 #Show the game status
 game.show_status()
+
+#Show the live status
+game.show_lives()
 
 #Create my sprites
 player = Player("triangle" ,"white", 0,0)
@@ -174,6 +215,10 @@ allies = []
 for i in range(3):
   allies.append(Ally("square" , "blue",-100,0))
 
+particles=[]
+for i in range(10):
+  particles.append(Particle("circle","orange",0,0))
+
 #Creating keybinds
 turtle.onkey(player.turn_left, "Left")
 turtle.onkey(player.turn_right, "Right")
@@ -190,6 +235,9 @@ while True:
   #enemy.move()
   #ally.move()
   missile.move()
+  
+  if game.lives == 0:
+    game.end()
 
   for enemy in enemies:
     enemy.move()
@@ -200,6 +248,14 @@ while True:
       enemy.goto(x,y)
       game.score -= 100
       game.show_status()
+      game.lives -= 1
+      game.show_lives()
+      #Explode particle
+      for particle in particles:
+        particle.explode(missile.xcor(),missile.ycor())
+      
+        
+
     #Check for a collision between the missile and the enemy
     if missile.is_collision(enemy):
       x=random.randint(-250,250)
@@ -209,7 +265,11 @@ while True:
       #Increase the score
       game.score += 100
       game.show_status()
-
+      game.show_lives()
+      #Explode particle
+      for particle in particles:
+        particle.explode(missile.xcor(),missile.ycor())
+        
   for ally in allies:
     ally.move()
     if missile.is_collision(ally):
@@ -220,5 +280,12 @@ while True:
         #Decrease the score
         game.score -= 50
         game.show_status()
-
+        game.show_lives()
+        #Explode particle
+        for particle in particles:
+          particle.explode(missile.xcor(),missile.ycor())
+          
+  for particle in particles:
+    particle.move()
+  
 delay = input("Press enter to finish. >")
