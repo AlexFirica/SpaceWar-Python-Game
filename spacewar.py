@@ -6,8 +6,6 @@ import turtle
 turtle.fd(0)
 turtle.speed(0)
 turtle.bgcolor("black")
-#Change the bg image
-
 #Change the Window Title
 turtle.title("SpaceWar")
 turtle.ht()
@@ -79,7 +77,6 @@ class Particle(Sprite):
     Sprite.__init__(self, spriteshape, color, startx, starty)
     self.shapesize(stretch_wid=0.1,stretch_len=0.1, outline=None)
     self.goto(-1000,1000)
-    self.frame=0
 
   def explode(self,startx,starty):
     self.goto(startx,starty)
@@ -137,55 +134,67 @@ class Ally(Sprite):
       self.sety(-290)
       self.lt(60)
 
-class Lives():
-  def __init__(self):
-      self.lives = 3
-      self.pen = turtle.Turtle()
-
-  def show_lives(self):
-      self.pen.undo()
-      msg2="Lives: %s" %(self.lives)
-      self.pen.penup()
-      self.pen.goto(-100,300)
-      self.pen.write(msg2,font=("Arial",16,"normal"))
-
 class Game():
-  def __init__(self):
-    self.level = 1 
-    self.score = 0
-    self.state = "playing"
-    self.pen = turtle.Turtle()
-    self.lives = 3
-  
-  def draw_border(self):
-    #Draw border
-    self.pen.speed(0)
-    self.pen.color("white")
-    self.pen.pensize(3) 
-    self.pen.penup()
-    self.pen.goto(-300,300)
-    self.pen.pendown()
-    for side in range(4):
-      self.pen.fd(600)
-      self.pen.rt(90)
-    self.pen.penup()
-    self.pen.ht()
-    self.pen.pendown()
-    
+    def __init__(self):
+        self.level = 1
+        self.score = 0
+        self.lives = 3
+        self.pen = turtle.Turtle()
+        self.pen_d = turtle.Turtle()
+        
 
-  def show_status(self):
-      self.pen.undo()
-      msg="Score: %s" %(self.score)
-      self.pen.penup()
-      self.pen.goto(-300,300)
-      self.pen.write(msg,font=("Arial",16,"normal"))
-  
-  def show_lives(self):
-      #self.pen.undo()
-      msg2='Lives: %s' %(self.lives)
-      self.pen.penup()
-      self.pen.goto(-200,300)
-      self.pen.write(msg2,font=("Arial",16,"normal"))
+    def draw_border(self):
+    #Draw border
+        self.pen_d.speed(0)
+        self.pen_d.color("white")
+        self.pen_d.pensize(3) 
+        self.pen_d.penup()
+        self.pen_d.goto(-300,300)
+        self.pen_d.pendown()
+        for side in range(4):
+          self.pen_d.fd(600)
+          self.pen_d.rt(90)
+        self.pen_d.penup()
+        self.pen_d.ht()
+        self.pen_d.pendown()
+        self.pen_d.penup()
+
+    def border(self):
+        self.pen.speed(0)
+        self.pen.color("white")
+        self.pen.pensize(3) 
+        self.pen.penup()
+        self.pen.goto(-300,300)
+        self.pen.pendown()
+        for side in range(4):
+          self.pen.fd(600)
+          self.pen.rt(90)
+        self.pen.penup()
+        self.pen.ht()
+        self.pen.pendown()
+        self.pen.penup()
+
+    def show_status(self):
+        self.pen_d.clear()
+        msg = "Score: %s" %(self.score)
+        self.pen_d.penup()
+        self.pen_d.goto(-300, 300)
+        self.pen_d.write(msg , font=("Arial",16,"normal"))
+        
+    def show_lives(self):
+        self.pen_d.penup()
+        self.pen_d.goto(-100, 300)
+        if self.lives:
+          self.pen_d.write(f"Lives: {self.lives}", font=("Arial",16,"normal"))
+        else:
+          self.endGame()
+
+    def endGame(self):
+        self.pen.color("White")
+        self.pen.ht()
+        self.pen.penup()
+        self.pen.goto(-90,-10)
+        self.pen.write("End Game",font=("Arial",30,"normal"))
 
 #Create Game Objects
 game=Game()
@@ -199,10 +208,10 @@ game.show_status()
 #Show the live status
 game.show_lives()
 
+game.border()
+
 #Create my sprites
 player = Player("triangle" ,"white", 0,0)
-#enemy = Enemy("circle", "red", -100, 0) #One enemy
-#ally = Ally("square" , "blue",-100,0 ) #One ally
 missile = Missile("triangle", "yellow", 0,0)
 
 #Multiple enemies
@@ -232,12 +241,8 @@ while True:
   turtle.update()
   time.sleep(0.01)
   player.move()
-  #enemy.move()
-  #ally.move()
   missile.move()
-  
-  if game.lives == 0:
-    game.end()
+    
 
   for enemy in enemies:
     enemy.move()
@@ -247,15 +252,13 @@ while True:
       y=random.randint(-250,250)
       enemy.goto(x,y)
       game.score -= 100
-      game.show_status()
       game.lives -= 1
+      game.show_status()
       game.show_lives()
       #Explode particle
       for particle in particles:
         particle.explode(missile.xcor(),missile.ycor())
       
-        
-
     #Check for a collision between the missile and the enemy
     if missile.is_collision(enemy):
       x=random.randint(-250,250)
@@ -288,4 +291,3 @@ while True:
   for particle in particles:
     particle.move()
   
-delay = input("Press enter to finish. >")
