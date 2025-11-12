@@ -38,11 +38,9 @@ class Sprite(turtle.Turtle):
     if self.ycor() < -290:
       self.sety(-290)
       self.rt(60)
+
   def is_collision(self, other):
-    if (self.xcor()>=(other.xcor()-20)) and \
-    (self.xcor()<=(other.xcor()+20)) and \
-    (self.ycor()>=(other.ycor()-20)) and \
-    (self.ycor()<=(other.ycor()+20)):
+    if (self.xcor()>=(other.xcor()-20)) and (self.xcor()<=(other.xcor()+20)) and (self.ycor()>=(other.ycor()-20)) and (self.ycor()<=(other.ycor()+20)):
       return True
     else:
       return False
@@ -176,7 +174,7 @@ class Game():
 
     def show_status(self):
         self.pen_d.clear()
-        msg = "Score: %s" %(self.score)
+        msg = f"Score: {self.score}"
         self.pen_d.penup()
         self.pen_d.goto(-300, 300)
         self.pen_d.write(msg , font=("Arial",16,"normal"))
@@ -187,7 +185,7 @@ class Game():
         if self.lives:
           self.pen_d.write(f"Lives: {self.lives}", font=("Arial",16,"normal"))
         else:
-          self.endGame()
+          self.endGame() #recursivitate indirecta
 
     def endGame(self):
         self.pen.color("White")
@@ -210,7 +208,7 @@ game.show_lives()
 
 game.border()
 
-#Create my sprites
+#Create my sprites(obj)
 player = Player("triangle" ,"white", 0,0)
 missile = Missile("triangle", "yellow", 0,0)
 
@@ -243,7 +241,6 @@ while True:
   player.move()
   missile.move()
     
-
   for enemy in enemies:
     enemy.move()
     #Check for a collision with the player
