@@ -182,9 +182,10 @@ class Game():
     def show_lives(self):
         self.pen_d.penup()
         self.pen_d.goto(-100, 300)
-        if self.lives:
+        if self.lives>0:
           self.pen_d.write(f"Lives: {self.lives}", font=("Arial",16,"normal"))
         else:
+          self.pen_d.write(f"Lives: {self.lives}", font=("Arial",16,"normal"))
           self.endGame() #recursivitate indirecta
 
     def endGame(self):
@@ -193,6 +194,7 @@ class Game():
         self.pen.penup()
         self.pen.goto(-90,-10)
         self.pen.write("End Game",font=("Arial",30,"normal"))
+        self.show_lives()
 
 #Create Game Objects
 game=Game()
